@@ -1,0 +1,13 @@
+{
+    "type": "code",
+    "modid": "waytranslocators",
+    "name": "Way Translocators",
+    "authors": [
+        "BoboDev"
+    ],
+    "description": "Flexible Translocators",
+    "version": "1.0.0-pre.1",
+    "dependencies": {
+        "game": ""
+    }
+}
