@@ -5,6 +5,7 @@ using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
+using Vintagestory.API.MathTools;
 using Vintagestory.GameContent;
 using WayTranslocators;
 
@@ -14,7 +15,20 @@ class Overwrite
     private static Initialization instance;
     private Harmony overwriter;
 
-    private static readonly Random random = new();
+    /// Stores all know translocations by players
+    ///{
+    ///     "playeruid": {
+    ///         "translocator_name": "X,Y,Z"
+    ///     }
+    ///}
+    public readonly static Dictionary<string, List<KeyValuePair<string, string>>> knownTranslocators = new();
+
+    /// Stores all translocators setups for to other translocators
+    ///{
+    ///     "trans-pos-from-xyz": "trans-pos-to-xyz"
+    ///}
+    public readonly static Dictionary<string, string> translocatorsSelections = new();
+
 
     public void OverwriteNativeFunctions(Initialization _instance)
     {
@@ -32,13 +46,33 @@ class Overwrite
         }
     }
 
-    // Overwrite interaction
+    // Overwrite collide target
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(BlockEntityStaticTranslocator), "didTeleport")]
-    public static void didTeleport(BlockEntityStaticTranslocator __instance, Entity entity)
+    [HarmonyPatch(typeof(BlockEntityStaticTranslocator), "OnEntityCollide")]
+    public static void OnEntityCollide(BlockEntityStaticTranslocator __instance, Entity entity)
     {
-        // We need to understand how the translocator works
-        Debug.Log("Testing...");
+        // 100, 100, 100
+        Debug.Log(__instance.Pos.ToString());
+        // Show the dialog here
+    }
+
+    // Overwrite teleportation target
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(BlockEntityStaticTranslocator), "GetTarget")]
+    public static Vec3d GetTarget(Vec3d __result, BlockEntityStaticTranslocator __instance, Entity forEntity)
+    {
+        // Try to find the selected translocator to teleport to
+        if (translocatorsSelections.TryGetValue(__instance.Pos.ToString(), out string toPos))
+        {
+            Debug.Log($"SUCCESS FINDED THE TRANSLOCATOR POSITION: {toPos}");
+            return null;
+        }
+        // If cannot find the selected translocator we disable the teleport
+        else
+        {
+            Debug.Log("NO TRANSLOCATORS HAS BEEN SET");
+            return null;
+        }
     }
 
 
@@ -52,7 +86,7 @@ class Overwrite
         {
             dsc.AppendLine(Lang.Get("Seems to be missing a couple of gears. I think I've seen such gears before.", Array.Empty<object>()));
         }
-        else if (Initialization.knownTranslocators.TryGetValue(forPlayer.PlayerUID, out List<KeyValuePair<string, string>> translocators))
+        else if (knownTranslocators.TryGetValue(forPlayer.PlayerUID, out List<KeyValuePair<string, string>> translocators))
         {
             foreach (KeyValuePair<string, string> keyValue in translocators)
             {
@@ -62,7 +96,9 @@ class Overwrite
                     break;
                 }
             }
-        } else {
+        }
+        else
+        {
             dsc.AppendLine(Lang.Get("waytranslocators:unkown-traslocator"));
         }
         return false;

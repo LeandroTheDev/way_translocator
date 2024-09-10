@@ -7,13 +7,6 @@ public class Initialization : ModSystem
 {
     public ICoreAPI api;
     private readonly Overwrite overwrite = new();
-    
-    ///{
-    ///     "playeruid": {
-    ///         "translocator_name": "X,Y,Z"
-    ///     }
-    ///}
-    public readonly static Dictionary<string, List<KeyValuePair<string, string>>> knownTranslocators = new();
 
     public override void Start(ICoreAPI _api)
     {
