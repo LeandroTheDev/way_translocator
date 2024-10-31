@@ -1,3 +1,6 @@
+# Archived
+No longer hyped to make this, already exists some [mod](https://mods.vintagestory.at/translocatorengineeringredux) that does basically the same
+
 # Way Translocators
 Overhaul the translocators in vintage story, make them flexible and more helpful, with this mod all repaired translocators can now be know, if the translocator is know, you can teleport to other know translocators in the world, at cost of temporal gears (or not, configurable)
 
